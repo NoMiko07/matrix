@@ -1,9 +1,10 @@
 from __future__ import annotations
+import numpy as np
 from typing import TypeVar, Generic, List, Union
 from dataclasses import dataclass
 
 K = TypeVar("K")
-Number = Union[int, float]
+Number = np.float32
 
 def myBeartype(arg: object, expected_type: type, element_type: type = None) -> None:
     if not isinstance(arg, expected_type):
@@ -109,7 +110,7 @@ class Vector(Generic[K]):
     def __post_init__(self):
         if not self.values:
             raise ValueError("Vector cannot be empty")
-        if not all(isinstance(x, (int, float)) for x in self.values):
+        if not all(isinstance(x, Number) for x in self.values):
             raise TypeError("All elements of Vector must be numbers")
         
     def size(self) -> int:
