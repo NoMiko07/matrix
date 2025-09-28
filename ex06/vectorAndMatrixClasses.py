@@ -165,7 +165,54 @@ class Vector(Generic[K]):
         myBeartype(scalar, Number)
         self.values = [x * scalar for x in self.values]
 
+    def dot(self, v: "Vector") -> Number:
+        if not isinstance(v, Vector):
+            raise ValueError("v must be vectors.")
+        if self.size() != v.size():
+            raise ValueError("Both vectors must have the same length.")
 
+        scalar = 0
+        for x, y in zip(self.values, v.values):
+            scalar = (scalar + x * y)
+        return scalar
+
+    def norm_1(self) -> Number:
+        """
+        Formula: ||v||₁ = Σ |vᵢ|
+        """
+        sum = 0
+        for x in self.values:
+            if x < 0:
+                x = -x
+            sum += x
+        
+        return sum
+
+    def norm(self) -> Number:
+        """
+        Formula: ||v||₂ = sqrt(Σ (vᵢ)²)
+        """
+        sum = 0
+        for x in self.values:
+            if x < 0:
+                x = -x
+            sum += pow(x, 2)
+        return sum ** 0.5
+
+    def norm_inf(self) -> Number:
+        """
+        Formula: ||v||∞ = max(|vᵢ|) 
+        """
+        max = 0
+        for x in self.values:
+            if x < 0:
+                x = -x
+            if x > max:
+                max = x
+        return max
+
+
+# --------------------------- Function ---------------------------
 
 def linear_combination(vectors: List["Vector[K]"], scalars: List[Number]) -> "Vector[K]":
     myBeartype(vectors, list, Vector)
@@ -186,3 +233,5 @@ def linear_combination(vectors: List["Vector[K]"], scalars: List[Number]) -> "Ve
         newVector.append(result)
 
     print(newVector)
+
+    
