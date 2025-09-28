@@ -12,15 +12,23 @@ def main():
             ])
         #print(m1.mul_vec(v1))
 
+        m1 = Matrix([
+            [1, 2, 3],
+            [4, 5, 6],
+            [7, 8, 9],
+            ])
+        
         m2 = Matrix([
-            [2, 1],
-            [4, 2]
+            [9, 8, 7],
+            [6, 5, 4],
+            [3, 2, 1],
             ])
 
-        m1.mul_mat(m2)
-        m2.print_matrix()
+        print(m1.mul_mat(m2))
+        
+
     except Exception as e:
         print("❌ Error:", e)
 
-if __name__ == "__main__":
+if __name__ == "__main__":  
     main()

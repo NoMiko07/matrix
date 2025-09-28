@@ -100,6 +100,52 @@ class Matrix(Generic[K]):
             for rows in self.rows
             ]
 
+    def mul_vec(self, vec: "Vector")-> "Vector":
+        if not isinstance(vec, Vector):
+            raise ValueError("Argument must be a vector.")
+        
+        n_rows, n_columns = self.shape()
+        if n_columns != vec.size():
+            raise ValueError("Vector length must match the number of columns in the matrix.")
+
+        newVector = []
+        for row in self.rows:
+            res = 0
+            for coeff, val in zip(row, vec.values):
+                res += coeff * val
+            newVector.append(res)
+        
+        return(Vector(newVector))
+
+    def transpose(self, send: bool)-> "Matrix":
+        transposed = [list(row) for row in zip(*self.rows)]
+        if send == True:
+            return Matrix(transposed)
+        else:
+            self.rows = transposed
+
+        return None
+
+    def mul_mat(self, v: "Matrix") -> "Matrix":
+        rows1, columns1 = self.shape()
+        rows2, columns2 = v.shape()
+        if not isinstance(v, Matrix):
+            raise ValueError("Argument must be a Matrix.")
+        if columns1 != rows2:
+            raise ValueError("Number of columns of the first matrix must equal number of rows of the second matrix.")
+        
+        v_t = v.transpose(True)
+        newMatrix = []
+        for row1 in self.rows:
+            newRow = []
+            v_row1 = Vector(row1)
+            for row2 in v_t.rows:
+                newRow.append(v_row1.dot(Vector(row2)))
+            newMatrix.append(newRow)
+        
+        return Matrix(newMatrix)
+            
+
 # --------------------------- VECTOR CLASS ---------------------------
 
 @dataclass
