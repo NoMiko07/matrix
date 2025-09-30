@@ -46,7 +46,7 @@ class Matrix(Generic[K]):
             print("Empty Matrix")
 
     def is_square(self) -> bool:
-        rows = self.rows
+        rows = len(self.rows)
         columns = len(self.rows[0])
         return rows == columns
     
@@ -144,8 +144,18 @@ class Matrix(Generic[K]):
             newMatrix.append(newRow)
         
         return Matrix(newMatrix)
+            
+    def trace(self)-> Number:
+        if not self.is_square():
+            raise ValueError("The matrix must be a square.")
+        
+        rows , columns = self.shape()
+        total = 0
 
+        for i in range(columns):
+            total += self.rows[i][i]
 
+        return total
 # --------------------------- VECTOR CLASS ---------------------------
 
 @dataclass

@@ -2,29 +2,58 @@ from typing import Union
 from vectorAndMatrixClasses import Vector, Matrix, linear_combination, myBeartype
 
 
-    
 def main():
     try:
-        v1 = Vector([4, 2])
-        m1 = Matrix([
+        u = Matrix([
+            [1., 0.],
+            [0., 1.],
+        ])
+        v = Vector([4., 2.])
+        print(u.mul_vec(v))
+
+        u = Matrix([
+            [2., 0.],
+            [0., 2.],
+        ])
+        v = Vector([4., 2.])
+        print(u.mul_vec(v))
+
+        u = Matrix([
+            [2., -2.],
+            [-2., 2.],
+        ])
+        v = Vector([4., 2.])
+        print(u.mul_vec(v))
+
+        u = Matrix([
+            [1., 0.],
+            [0., 1.],
+        ])
+        v = Matrix([
+            [1., 0.],
+            [0., 1.],
+        ])
+        print(u.mul_mat(v))
+
+        u = Matrix([
+            [1., 0.],
+            [0., 1.],
+        ])
+        v = Matrix([
+            [2., 1.],
+            [4., 2.],
+        ])
+        print(u.mul_mat(v))
+
+        u = Matrix([
             [3., -5.],
             [6., 8.],
-            ])
-        #print(m1.mul_vec(v1))
-
-        m1 = Matrix([
-            [1, 2, 3],
-            [4, 5, 6],
-            [7, 8, 9],
-            ])
-        
-        m2 = Matrix([
-            [9, 8, 7],
-            [6, 5, 4],
-            [3, 2, 1],
-            ])
-
-        print(m1.mul_mat(m2))
+        ])
+        v = Matrix([
+            [2., 1.],
+            [4., 2.],
+        ])
+        print(u.mul_mat(v))
         
 
     except Exception as e:
