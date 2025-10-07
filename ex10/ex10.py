@@ -1,29 +1,29 @@
 from typing import Union
-from vectorAndMatrixClasses import Vector, Matrix, linear_combination, myBeartype
+from vectorAndMatrixClasses import Matrix
 
 def main():
     try:
-        u = Matrix([
-            [1., 0.],
-            [0., 1.],
-        ])
-        print(u.transpose())
 
         u = Matrix([
-            [2., -5., 0.],
-            [4., 3., 7.],
-            [-2., 3., 4.],
+            [0, -5., 0.],
+            [0, 3., 4.],
+            [0, 1., 7.],
         ])
-        print(u.transpose())
+
+        """
+        u = Matrix([
+            [0., 0., 0.],
+            [0., 0., 0.],
+            [0., 0., 0.],
+        ])
+        """
 
         u = Matrix([
-            [-2., -8.],
-            [1., -23.],
-            [0., 6.],
+            [8., 5., -2., 4., 28.],
+            [4., 2.5, 20., 4., -4.],
+            [8., 5., 1., 4., 17.]
         ])
-        u.print_shape()
-        test = u.transpose()
-        test.print_matrix()
+        print(u.row_echelon())
 
     except Exception as e:
         print("❌ Error:", e)

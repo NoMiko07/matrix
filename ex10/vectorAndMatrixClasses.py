@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TypeVar, Generic, List, Union
 from dataclasses import dataclass
+from typing import Tuple
 
 K = TypeVar("K")
 Number = Union[int, float]
@@ -33,7 +34,13 @@ class Matrix(Generic[K]):
             if not all(isinstance(x, (int, float)) for x in r):
                 raise TypeError("Matrix elements must be int or float")
                 
-        
+    def __str__(self):
+        lines = []
+        for row in self.rows:
+            formatted = [0.0 if my_abs(x) < 1e-10 else x for x in row]
+            lines.append(str(formatted))
+        return "\n".join(lines)
+
     def shape(self) -> tuple[int, int]:
         rows = len(self.rows)
         columns = len(self.rows[0])
@@ -151,6 +158,108 @@ class Matrix(Generic[K]):
             total += self.rows[i][i]
 
         return total
+    
+    def find_first_pivot(self)-> Tuple[int, int, bool]:
+        transposed_matrix = self.transpose()
+        pivot = -1
+        position_row = -1
+        position_column = -1
+        for i, row in enumerate(transposed_matrix.rows):
+            for j, column in enumerate(row):
+                if my_abs(column) > 0:
+                    pivot = my_abs(column)
+                    position_column = i
+                    position_row = j
+                    break
+            if pivot > 0:
+                break
+        
+        one_or_not = True if self.rows[position_row][position_column] == 1 else False
+        
+        return position_row, position_column, one_or_not
+
+    def turn_pivot_to_one(self, v: List, column : int)-> List:
+        v_copy = Vector(v)
+        mult = 1/v_copy.values[column]
+        v_copy.scl(mult)
+        return v_copy.values
+
+    def under_pivot_to_zero(self, v: List, v_pivot: List, target_pos: int)-> List:
+        v_vector = Vector(v)
+        v_pivot_vector = Vector(v_pivot)
+        target = v[target_pos]
+        v_pivot_vector.scl(target)
+        v_vector.sub(v_pivot_vector)
+
+        return v_vector.values
+    
+    def line_is_full_of_zero(self, v: List)-> bool:
+        return all(element == 0 for element in v)
+
+    def find_pivot_position(self, v: List)-> int:
+        i = 0
+
+        for element in v:
+            if element == 0:
+                i += 1
+            else:
+                break
+        
+        return i
+            
+    def swap_all_line_with_zero_at_the_end(self, m: "Matrix")-> "Matrix":
+        line_with_0 = 0
+        newMatrix = []
+        to_copy = []
+
+        for row_nb in range(len(m.rows)):
+                if self.line_is_full_of_zero(m.rows[row_nb]):                    
+                    line_with_0 += 1
+                    if len(to_copy) == 0:
+                        to_copy = m.rows[row_nb]
+                else:
+                    newMatrix.append(m.rows[row_nb])
+
+        for i in range(line_with_0):
+            newMatrix.append(to_copy)
+
+        return Matrix(newMatrix)
+        
+
+    def row_echelon(self)-> "Matrix":
+        position_row , position_column, one_or_not = self.find_first_pivot()
+
+        if position_row == -1 and position_column == -1:
+            print("The matrix is already an reversed row echelon form")
+            return
+        
+        matrix_cpy = Matrix(self.rows)
+        matrix_cpy = self.swap_all_line_with_zero_at_the_end(matrix_cpy)
+
+        for row_nb in range(len(matrix_cpy.rows)):
+            if self.line_is_full_of_zero(matrix_cpy.rows[row_nb]):
+                continue
+            pivot_pos = self.find_pivot_position(matrix_cpy.rows[row_nb])
+            matrix_cpy.rows[row_nb] = self.turn_pivot_to_one(matrix_cpy.rows[row_nb], pivot_pos)
+            for next_row_nb in range(row_nb + 1, len(matrix_cpy.rows)):
+                if self.find_pivot_position(matrix_cpy.rows[next_row_nb]) != pivot_pos:
+                        continue
+                matrix_cpy.rows[next_row_nb] = self.under_pivot_to_zero(matrix_cpy.rows[next_row_nb] ,matrix_cpy.rows[row_nb], pivot_pos)            
+            matrix_cpy = self.swap_all_line_with_zero_at_the_end(matrix_cpy)
+
+        return matrix_cpy
+            
+
+
+
+
+
+
+
+
+
+
+
 # --------------------------- VECTOR CLASS ---------------------------
 
 @dataclass
@@ -262,7 +371,6 @@ class Vector(Generic[K]):
                 max = x
         return max
 
-
 # --------------------------- Function ---------------------------
 
 def linear_combination(vectors: List["Vector[K]"], scalars: List[Number]) -> "Vector[K]":
@@ -286,3 +394,8 @@ def linear_combination(vectors: List["Vector[K]"], scalars: List[Number]) -> "Ve
     print(newVector)
 
     
+def my_abs(n: Number)-> Number:
+    if n >= 0:
+        return n
+    else :
+        return -n
