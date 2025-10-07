@@ -226,6 +226,16 @@ class Matrix(Generic[K]):
         return Matrix(newMatrix)
         
 
+    def reversed_row_echeleon_form(self, m: "Matrix")-> "Matrix":
+        for i in range(len(m.rows)-1, -1, -1):
+            pivot_pos = self.find_pivot_position(m.rows[i])
+            if self.line_is_full_of_zero(m.rows[i]):
+                continue            
+            for previous_row in range(i - 1, -1, -1):
+                m.rows[previous_row] = self.under_pivot_to_zero(m.rows[previous_row], m.rows[i], pivot_pos)
+
+        return m
+
     def row_echelon(self)-> "Matrix":
         position_row , position_column, one_or_not = self.find_first_pivot()
 
@@ -247,7 +257,8 @@ class Matrix(Generic[K]):
                 matrix_cpy.rows[next_row_nb] = self.under_pivot_to_zero(matrix_cpy.rows[next_row_nb] ,matrix_cpy.rows[row_nb], pivot_pos)            
             matrix_cpy = self.swap_all_line_with_zero_at_the_end(matrix_cpy)
 
-        return matrix_cpy
+        return self.reversed_row_echeleon_form(matrix_cpy)
+        
             
 
 
