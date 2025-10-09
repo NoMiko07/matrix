@@ -187,8 +187,8 @@ class Matrix(Generic[K]):
     def under_pivot_to_zero(self, v: List, v_pivot: List, target_pos: int)-> List:
         v_vector = Vector(v)
         v_pivot_vector = Vector(v_pivot)
-        target = v[target_pos]
-        v_pivot_vector.scl(target)
+        scalar = v[target_pos] / v_pivot[target_pos]
+        v_pivot_vector.scl(scalar)
         v_vector.sub(v_pivot_vector)
 
         return v_vector.values
@@ -204,18 +204,18 @@ class Matrix(Generic[K]):
                 i += 1
             else:
                 break
-        
+
+        if i == len(v):
+            return -1
         return i
             
-    def swap_all_line_with_zero_at_the_end(self, m: "Matrix")-> "Matrix":
+    def swap_all_line_with_zero_at_the_end(self, m: "Matrix", swap_count: int)-> Tuple["Matrix", int]:
         line_with_0 = 0
         newMatrix = []
         to_copy = []
-        highest = -1
+        count = 0
 
         for row_nb in range(len(m.rows)):
-            if highest < self.find_pivot_position(m.rows[row_nb]):
-                highest = self.find_pivot_position(m.rows[row_nb])
             if self.line_is_full_of_zero(m.rows[row_nb]):                    
                 line_with_0 += 1
                 if len(to_copy) == 0:
@@ -223,20 +223,19 @@ class Matrix(Generic[K]):
             else:
                 newMatrix.append(m.rows[row_nb])
 
-
-        newMatrixOrdered = []
-        if highest > 0:
-            for i in range(highest + 1):
-                for row_nb in range(len(newMatrix)):
-                    if i == self.find_pivot_position(newMatrix[row_nb]):
-                        newMatrixOrdered.append(newMatrix[row_nb])
-        else:
-            newMatrixOrdered = newMatrix
+        i = 0
+        while i < len(newMatrix) - 1:
+            if self.find_pivot_position(newMatrix[i]) > self.find_pivot_position(newMatrix[i + 1]):
+                newMatrix[i], newMatrix[i + 1] = newMatrix[i + 1], newMatrix[i]
+                count += 1
+                i = 0 
+            else:
+                i += 1
 
         for i in range(line_with_0):
-            newMatrixOrdered.append(to_copy)
+            newMatrix.append(to_copy)
 
-        return Matrix(newMatrixOrdered)
+        return Matrix(newMatrix), swap_count + count
         
 
     def reversed_row_echeleon_form(self, m: "Matrix")-> "Matrix":
@@ -249,28 +248,45 @@ class Matrix(Generic[K]):
 
         return m
 
-    def row_echelon(self)-> "Matrix":
-        position_row , position_column, one_or_not = self.find_first_pivot()
-
-        if position_row == -1 and position_column == -1:
-            print("The matrix is already an reversed row echelon form")
-            return
-        
+    def determinant(self)-> Number:
+        nb_rows, nb_columns = self.shape()
+        if nb_rows > 4:
+            raise ValueError("Can't calculate the Determinant with more than 4 rows")
+        transposed = self.transpose()
+        for row in transposed.rows:
+            if self.line_is_full_of_zero(row):
+                return 0
+            
+        swap_count = 0
         matrix_cpy = Matrix(self.rows)
-        matrix_cpy = self.swap_all_line_with_zero_at_the_end(matrix_cpy)
+        pivot_List = []
 
-        for row_nb in range(len(matrix_cpy.rows)):
+        for row_nb in range(len(matrix_cpy.rows)):        
+            matrix_cpy, swap_count = self.swap_all_line_with_zero_at_the_end(matrix_cpy, swap_count)
             if self.line_is_full_of_zero(matrix_cpy.rows[row_nb]):
                 continue
             pivot_pos = self.find_pivot_position(matrix_cpy.rows[row_nb])
-            matrix_cpy.rows[row_nb] = self.turn_pivot_to_one(matrix_cpy.rows[row_nb], pivot_pos)
+            if pivot_pos == -1:
+                pivot_List.append(0)
+            else:
+                pivot_List.append(matrix_cpy.rows[row_nb][pivot_pos])
             for next_row_nb in range(row_nb + 1, len(matrix_cpy.rows)):
                 if self.find_pivot_position(matrix_cpy.rows[next_row_nb]) != pivot_pos:
                         continue
-                matrix_cpy.rows[next_row_nb] = self.under_pivot_to_zero(matrix_cpy.rows[next_row_nb] ,matrix_cpy.rows[row_nb], pivot_pos)            
-            matrix_cpy = self.swap_all_line_with_zero_at_the_end(matrix_cpy)
+                matrix_cpy.rows[next_row_nb] = self.under_pivot_to_zero(matrix_cpy.rows[next_row_nb] ,matrix_cpy.rows[row_nb], pivot_pos)    
 
-        return self.reversed_row_echeleon_form(matrix_cpy)
+        if matrix_cpy.shape()[0] != len(pivot_List):
+            return 0
+
+        result = 1
+        
+        for pivot in pivot_List:
+            result *= pivot
+
+        if swap_count % 2 == 1:
+            result *= -1
+
+        return result
         
             
 
