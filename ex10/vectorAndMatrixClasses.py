@@ -247,7 +247,7 @@ class Matrix(Generic[K]):
             for previous_row in range(i - 1, -1, -1):
                 m.rows[previous_row] = self.under_pivot_to_zero(m.rows[previous_row], m.rows[i], pivot_pos)
 
-        return m
+        return Matrix(m)
 
     def row_echelon(self)-> "Matrix":
         position_row , position_column, one_or_not = self.find_first_pivot()
